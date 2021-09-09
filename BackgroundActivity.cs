@@ -79,9 +79,20 @@ namespace XShortCoreIndex
                 File.WriteAllText(Path.Combine(dataPath, "temp1"), String.Empty);
                 File.WriteAllText(Path.Combine(dataPath, "temp2"), String.Empty);
 
-                SearchFileAndFolder(targetPath);
                 SearchFileAndFolder(generalStartMenu);
                 SearchFileAndFolder(Path.Combine(targetPath, userStartMenu));
+                if (targetPath != "Enhanced")
+                    SearchFileAndFolder(targetPath);
+                else
+                {
+                    foreach (var drive in DriveInfo.GetDrives())
+                    {
+                        if (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Contains(drive.RootDirectory.FullName))
+                            SearchFileAndFolder(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+                        else
+                            SearchFileAndFolder(drive.RootDirectory.FullName);
+                    }
+                }
             }
             catch
             {

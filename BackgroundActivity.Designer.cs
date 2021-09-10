@@ -36,7 +36,7 @@ namespace XShortCoreIndex
             // timerBackgroundCheck
             // 
             this.timerBackgroundCheck.Enabled = true;
-            this.timerBackgroundCheck.Interval = 60000;
+            this.timerBackgroundCheck.Interval = 300000;
             this.timerBackgroundCheck.Tick += new System.EventHandler(this.timerBackgroundCheck_Tick);
             // 
             // BackgroundActivity

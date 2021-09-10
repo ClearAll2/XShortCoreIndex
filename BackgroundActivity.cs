@@ -19,6 +19,7 @@ namespace XShortCoreIndex
         private string userStartMenu = "AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs";
         private BackgroundWorker backgroundWorker;
         private double interval = 24;
+
         internal struct LASTINPUTINFO
         {
             public uint cbSize;
@@ -36,7 +37,6 @@ namespace XShortCoreIndex
             return ((uint)Environment.TickCount - lastInPut.dwTime);
         }
 
-
         public BackgroundActivity()
         {
             InitializeComponent();
@@ -49,8 +49,6 @@ namespace XShortCoreIndex
             backgroundWorker.RunWorkerAsync();
             
         }
-
-        
 
         private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -68,24 +66,24 @@ namespace XShortCoreIndex
             e.Result = 1;
             try
             {
-                if (File.Exists(Path.Combine(dataPath, "index")))
+                if (File.Exists(Path.Combine(dataPath, "index")))//check if temp file exists
                 {
-                    if (File.GetLastWriteTime(Path.Combine(dataPath, "index")).AddHours(interval) > DateTime.Now)
+                    if (File.GetLastWriteTime(Path.Combine(dataPath, "index")).AddHours(interval) > DateTime.Now)//check date and time of last index
                     {
                         e.Result = 0;
                         return;
                     }
                 }
-                File.WriteAllText(Path.Combine(dataPath, "temp1"), String.Empty);
+                File.WriteAllText(Path.Combine(dataPath, "temp1"), String.Empty);//clear temp index files
                 File.WriteAllText(Path.Combine(dataPath, "temp2"), String.Empty);
 
                 SearchFileAndFolder(generalStartMenu);
                 SearchFileAndFolder(Path.Combine(targetPath, userStartMenu));
                 if (targetPath != "Enhanced")
-                    SearchFileAndFolder(targetPath);
+                    SearchFileAndFolder(targetPath);//search personal folder only
                 else
                 {
-                    foreach (var drive in DriveInfo.GetDrives())
+                    foreach (var drive in DriveInfo.GetDrives())//search all drives
                     {
                         if (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Contains(drive.RootDirectory.FullName))
                             SearchFileAndFolder(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
@@ -101,6 +99,10 @@ namespace XShortCoreIndex
             }
         }
 
+        /// <summary>
+        /// Main function to search files and folders
+        /// </summary>
+        /// <param name="dir">String directory to search</param>
         private void SearchFileAndFolder(string dir)
         {
             try
@@ -159,14 +161,17 @@ namespace XShortCoreIndex
             exit = true;
         }
 
+        /// <summary>
+        /// Check interval setting every 5 minutes
+        /// </summary>
         private void timerBackgroundCheck_Tick(object sender, EventArgs e)
         {
             if (File.Exists(Path.Combine(dataPath, "interval")))
             {
-                RegistryKey r = Registry.CurrentUser.OpenSubKey("SOFTWARE\\ClearAll\\XShort\\Data", true);
-                interval = Double.Parse((string)r.GetValue("Interval"));
-                r.Close();
-                r.Dispose();
+                using (RegistryKey r = Registry.CurrentUser.OpenSubKey("SOFTWARE\\ClearAll\\XShort\\Data", true))
+                {
+                    interval = Double.Parse((string)r.GetValue("Interval"));
+                }
                 File.Delete(Path.Combine(dataPath, "interval"));
             }
             if (!backgroundWorker.IsBusy)

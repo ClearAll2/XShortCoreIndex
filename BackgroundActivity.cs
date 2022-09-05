@@ -131,7 +131,7 @@ namespace XShortCoreIndex
                     return;
                 foreach (DirectoryInfo sdir in dirs)
                 {
-                    while (GetIdleTime() <= 10000)
+                    while (GetIdleTime() <= 10000 && SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online)
                     {
                         Thread.Sleep(500);
                         if (exit)
